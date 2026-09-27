@@ -14,6 +14,8 @@ paid API or needs credentials while the presentation is open.
 
 The project is
 [gs-s-go/moonshot_workshop](https://code.siemens-energy.com/gs-s-go/moonshot_workshop).
+The presentation is
+[https://moonshot-workshop-87f1c2.code.siemens-energy.io](https://moonshot-workshop-87f1c2.code.siemens-energy.io).
 
 A push to `main` runs `.gitlab-ci.yml`. The `pages` job publishes `site/`
 (the compiled app) together with the clips in `public/media`. The runner does

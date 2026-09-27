@@ -1,0 +1,42 @@
+# Builds the scroll presentation and publishes it with GitLab Pages.
+# The job must be named "pages". It publishes a folder named public.
+
+stages:
+  - test
+  - deploy
+
+default:
+  image: node:22
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm test
+
+pages:
+  stage: deploy
+  script:
+    - npm ci
+    - |
+      if [ -n "${CI_PAGES_URL:-}" ]; then
+        BASE=$(node -p "new URL(process.env.CI_PAGES_URL).pathname.replace(/\/?$/, '/')")
+      else
+        BASE="/${CI_PROJECT_NAME}/"
+      fi
+      echo "Building with base ${BASE}"
+      npx tsc && npx vite build --base "$BASE"
+    - rm -rf public
+    - mv dist public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

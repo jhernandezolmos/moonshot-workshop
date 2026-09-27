@@ -1,93 +1,120 @@
-# Moonshot_Workshop
+# From Spreadsheets to Systems — scroll presentation
 
+A local, scroll-driven version of the Moonshot talk. Each scene pins a silent
+cinematic clip behind the text; the clip's playhead follows the scroll position
+(forward and backward), and the copy appears beat by beat. The story follows
+the Miro board: the journey from October 2025, the new language, McCoy, GCO
+Planner, MEP and the coding agents in Salesforce, the shift away from UI, the
+engine, the principles for tomorrow, and the open questions for the workshop.
 
+The clips are pre-generated and bundled in `public/media/`. Nothing calls a
+paid API or needs credentials while the presentation is open.
 
-## Getting started
+## GitLab Pages
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The project is
+[gs-s-go/moonshot_workshop](https://code.siemens-energy.com/gs-s-go/moonshot_workshop).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+A push to `main` runs `.gitlab-ci.yml`. The `pages` job builds the site and
+publishes it with GitLab Pages. The build sets the asset path from
+`CI_PAGES_URL`, so fonts and videos load on the Pages address.
 
-## Add your files
+That address is not the project page. The project page is the repository.
+After the pipeline succeeds, the presentation link is listed in the project
+under **Deploy > Pages**. The site is private, so opening it requires a
+GitLab login with access to this project.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Run it
 
+```bash
+cd "Moonshot PPT/presentation"
+npm install
+npm run dev          # http://localhost:5173
 ```
-cd existing_repo
-git remote add origin https://code.siemens-energy.com/gs-s-go/moonshot_workshop.git
-git branch -M main
-git push -uf origin main
+
+For the venue, use the production build (no dev tooling, same behavior):
+
+```bash
+npm run build
+npm run preview      # http://localhost:4173
 ```
 
-## Integrate with your tools
+Chrome or Edge on a laptop connected to the projector works best. Close other
+heavy tabs; the clips decode locally.
 
-* [Set up project integrations](https://code.siemens-energy.com/gs-s-go/moonshot_workshop/-/settings/integrations)
+## Presenting
 
-## Collaborate with your team
+Scroll with a trackpad or mouse, or use the keyboard.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+| Key | Action |
+| --- | --- |
+| → / ← | Next / previous stop (always) |
+| Space, Shift+Space, PageDown, PageUp, ↓, ↑ | Next / previous stop (presenter mode, works with clickers) |
+| P | Presenter mode on/off (controls bar at the bottom) |
+| N | Notes drawer (presenter mode) |
+| M | Chapter menu |
+| F | Fullscreen |
+| . | Freeze motion on the current frame |
+| Esc | Close the menu or the notes drawer |
 
-## Test and Deploy
+Shortcuts are ignored while typing in a field. The workshop pause beat never
+auto-advances.
 
-Use the built-in continuous integration in GitLab.
+**Speaker window.** In presenter mode, "Speaker window" opens the notes in a
+separate window (`?view=notes`). Drag it to the laptop screen and keep the
+presentation fullscreen on the projector; both stay in sync.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+**Readable version.** The "Readable version" button (top right) switches to a
+linear page with still images and all text visible. The same version is used
+automatically when the system asks for reduced motion. It is also the better
+choice on a slow machine.
 
-***
+**Reload recovery.** The current scene is kept in the URL hash, so a reload
+returns to the same place.
 
-# Editing this README
+## Workshop notes and candidates
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Chapter 06 (the workshop) has the tools: a pause banner, a 10-minute
+  timer, and a notes field.
+- Chapter 07 (the choice) collects up to three candidate workflows, places
+  them on a value/feasibility grid, and lets the room select one. The
+  selection is carried into the closing scene (chapter 08). Until someone
+  selects one, the closing reads "Decision to be made together."
+- Notes and candidates are saved only in this browser (`localStorage`, key
+  `moonshot-presentation:v1`). "Export notes" downloads a Markdown file
+  (`moonshot-workshop-notes-YYYY-MM-DD.md`).
+- To reset before a session, clear the site data in the browser or run
+  `localStorage.removeItem("moonshot-presentation:v1")` in the console.
 
-## Suggestions for a good README
+## Changing the content
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- **Text, beats, notes, chapters:** `src/story.ts`. Each scene lists its
+  `video` (a file name in `public/media/` without extension), `brand`
+  (`siemens` or `omterra`, which drives the logo crossfade), optional
+  `overlay`, beats, and speaker notes.
+- **Overlays** (file chips, timeline, engine layers, candidates, and so on):
+  `src/overlays/`.
+- **Logos:** `public/brand/siemens-energy-white.svg` and
+  `public/brand/omterra-wordmark.png`.
 
-## Name
-Choose a self-explaining name for your project.
+### Replacing or adding a clip
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Encoded clips and posters live in `public/media/`. Replace the `.mp4` and the
+matching `.jpg`, keep the file name, and push to `main`.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+`npm run media` re-encodes a raw file from `../generated/raw/` (the sibling
+folder in the local workshop workspace) into `public/media/`: a keyframe every
+4 frames, no audio, 1920×1080, plus a poster. Reference the file name, without
+an extension, from `src/story.ts`.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+A scene without a clip falls back to a procedural background, and a clip that
+fails to load falls back to its poster.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Tests
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+```bash
+npm test
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Covers stop navigation and keyboard control, candidate selection, notes
+export, and the readable version.

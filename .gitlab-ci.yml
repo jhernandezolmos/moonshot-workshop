@@ -7,6 +7,11 @@ stages:
 
 default:
   image: node:22
+  # npm 11 on the runner can exit with "Exit handler never called" unless
+  # lifecycle scripts run in the foreground.
+  before_script:
+    - node -v && npm -v
+    - npm ci --foreground-scripts --no-audit --no-fund
 
 cache:
   key:
@@ -18,13 +23,15 @@ cache:
 test:
   stage: test
   script:
-    - npm ci
     - npm test
+  retry:
+    max: 1
+    when:
+      - script_failure
 
 pages:
   stage: deploy
   script:
-    - npm ci
     - |
       if [ -n "${CI_PAGES_URL:-}" ]; then
         BASE=$(node -p "new URL(process.env.CI_PAGES_URL).pathname.replace(/\/?$/, '/')")

@@ -38,6 +38,7 @@ export class ScrollEngine {
   private scenes: SceneHandle[] = [];
   private beats = new Map<string, number>();
   private videoTimes = new Map<string, number>();
+  private seekingSince = new Map<string, number>();
   private listeners = new Set<() => void>();
   private frame = 0;
   private started = false;
@@ -154,7 +155,7 @@ export class ScrollEngine {
         const diff = target - current;
         const next = Math.abs(diff) < 0.004 ? target : current + diff * SCRUB_EASE;
         this.videoTimes.set(scene.id, next);
-        if (!video.seeking && Math.abs(video.currentTime - next) > 0.015) video.currentTime = next;
+        if (Math.abs(video.currentTime - next) > 0.015 && this.canSeek(scene.id, video)) video.currentTime = next;
         if (next !== target) animating = true;
       }
     });
@@ -169,6 +170,23 @@ export class ScrollEngine {
       this.listeners.forEach((listener) => listener());
     }
     if (animating) this.schedule();
+  }
+
+  /** A seek that never finishes would freeze the picture on the first frame. */
+  private canSeek(id: string, video: HTMLVideoElement): boolean {
+    if (!video.seeking) {
+      this.seekingSince.delete(id);
+      return true;
+    }
+    const now = performance.now();
+    const since = this.seekingSince.get(id);
+    if (since === undefined) {
+      this.seekingSince.set(id, now);
+      return false;
+    }
+    if (now - since < 280) return false;
+    this.seekingSince.set(id, now);
+    return true;
   }
 
   /** Scroll positions (document coordinates) where each beat is fully on screen. */

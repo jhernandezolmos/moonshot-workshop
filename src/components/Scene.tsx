@@ -95,6 +95,39 @@ function SceneMedia({
   const [requested, setRequested] = useState(near);
   if (near && !requested) setRequested(true);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !requested || !scene.video || readable) return;
+    const url = media(`${scene.video}.mp4`);
+    // Tests only need the address. The published host does not answer the
+    // partial reads a scroll-scrub needs, so the clip is loaded whole and
+    // marked as video even when the server sends a generic file type.
+    if (import.meta.env.MODE === "test") {
+      video.src = url;
+      return;
+    }
+    let cancelled = false;
+    let objectUrl = "";
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error(String(response.status));
+        return response.blob();
+      })
+      .then((blob) => {
+        if (cancelled) return;
+        const typed = blob.type.startsWith("video/") ? blob : new Blob([blob], { type: "video/mp4" });
+        objectUrl = URL.createObjectURL(typed);
+        video.src = objectUrl;
+      })
+      .catch(() => {
+        if (!cancelled) video.src = url;
+      });
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [requested, readable, scene.video, videoRef]);
+
   if (!scene.video) return <div className="media media--procedural" aria-hidden="true" />;
 
   const poster = media(`${scene.video}.jpg`);
@@ -111,14 +144,18 @@ function SceneMedia({
       <video
         ref={videoRef}
         className="media__el"
-        src={requested ? media(`${scene.video}.mp4`) : undefined}
         poster={poster}
         muted
         playsInline
         disablePictureInPicture
         preload="auto"
         tabIndex={-1}
-        onLoadedMetadata={() => engine.schedule()}
+        onLoadedData={(event) => {
+          const video = event.currentTarget;
+          const played = video.play?.();
+          if (played && typeof played.then === "function") played.then(() => video.pause()).catch(() => undefined);
+          engine.schedule();
+        }}
         onError={() => setFailed(true)}
       />
     </div>

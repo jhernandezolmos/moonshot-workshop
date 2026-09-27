@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "pages:site": "npm run build && rm -rf site && mkdir -p site && cp dist/index.html site/index.html && cp -R dist/assets site/assets",
     "preview": "vite preview",
     "test": "vitest run",
     "media": "bash scripts/encode-media.sh"

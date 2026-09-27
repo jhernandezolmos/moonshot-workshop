@@ -1,47 +1,22 @@
-# Builds the scroll presentation and publishes it with GitLab Pages.
+# Publishes the scroll presentation with GitLab Pages.
 # The job must be named "pages". It publishes a folder named public.
-
-stages:
-  - test
-  - deploy
-
-default:
-  image: node:22
-  # npm 11 on the runner can exit with "Exit handler never called" unless
-  # lifecycle scripts run in the foreground.
-  before_script:
-    - node -v && npm -v
-    - npm ci --foreground-scripts --no-audit --no-fund
-
-cache:
-  key:
-    files:
-      - package-lock.json
-  paths:
-    - node_modules/
-
-test:
-  stage: test
-  script:
-    - npm test
-  retry:
-    max: 1
-    when:
-      - script_failure
+#
+# The runner cannot reach the npm registry reliably, so this job does not
+# install or build. The compiled site is committed in site/, and the clips
+# stay in public/media. Rebuild site/ locally with `npm run build` after
+# changing the app, then copy dist/index.html and dist/assets into site/.
 
 pages:
   stage: deploy
+  image: alpine:3.20
   script:
-    - |
-      if [ -n "${CI_PAGES_URL:-}" ]; then
-        BASE=$(node -p "new URL(process.env.CI_PAGES_URL).pathname.replace(/\/?$/, '/')")
-      else
-        BASE="/${CI_PROJECT_NAME}/"
-      fi
-      echo "Building with base ${BASE}"
-      npx tsc && npx vite build --base "$BASE"
+    - mkdir -p out
+    - cp -a site/. out/
+    - mkdir -p out/media out/brand
+    - cp -a public/media/. out/media/
+    - cp -a public/brand/. out/brand/
     - rm -rf public
-    - mv dist public
+    - mv out public
   artifacts:
     paths:
       - public

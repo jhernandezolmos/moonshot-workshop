@@ -15,9 +15,16 @@ paid API or needs credentials while the presentation is open.
 The project is
 [gs-s-go/moonshot_workshop](https://code.siemens-energy.com/gs-s-go/moonshot_workshop).
 
-A push to `main` runs `.gitlab-ci.yml`. The `pages` job builds the site and
-publishes it with GitLab Pages. The build sets the asset path from
-`CI_PAGES_URL`, so fonts and videos load on the Pages address.
+A push to `main` runs `.gitlab-ci.yml`. The `pages` job publishes `site/`
+(the compiled app) together with the clips in `public/media`. The runner does
+not install npm. After changing the app, rebuild that folder before pushing:
+
+```bash
+npm run pages:site
+```
+
+Asset URLs are relative, so the same build works on whatever Pages address
+GitLab assigns.
 
 That address is not the project page. The project page is the repository.
 After the pipeline succeeds, the presentation link is listed in the project

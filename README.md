@@ -17,6 +17,11 @@ The project is
 The presentation is
 [https://moonshot-workshop-87f1c2.code.siemens-energy.io](https://moonshot-workshop-87f1c2.code.siemens-energy.io).
 
+The same site is also on GitHub:
+[jhernandezolmos/moonshot-workshop](https://github.com/jhernandezolmos/moonshot-workshop),
+published at
+[https://jhernandezolmos.github.io/moonshot-workshop/](https://jhernandezolmos.github.io/moonshot-workshop/).
+
 A push to `main` runs `.gitlab-ci.yml`. The `pages` job publishes `site/`
 (the compiled app) together with the clips in `public/media`. The runner does
 not install npm. After changing the app, rebuild that folder before pushing:
